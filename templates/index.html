@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="60">
+  <title>Price Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0a0a0f;
+      color: #c9d1d9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #58a6ff;
+      opacity: 0.8;
+    }
+
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      justify-content: center;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 14px;
+      padding: 1.75rem 2rem;
+      min-width: 240px;
+      max-width: 300px;
+      flex: 1;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .badge-crypto { background: #1f3a5f; color: #79c0ff; }
+    .badge-stock  { background: #1a3826; color: #56d364; }
+
+    .card-name {
+      font-size: 0.85rem;
+      color: #8b949e;
+    }
+
+    .price {
+      font-size: 2.4rem;
+      font-family: 'Cascadia Code', 'Fira Mono', monospace;
+      font-weight: 600;
+      color: #e6edf3;
+      line-height: 1;
+      margin-bottom: 0.6rem;
+    }
+
+    .price.error {
+      font-size: 1.1rem;
+      color: #f85149;
+    }
+
+    .timestamp {
+      font-size: 0.7rem;
+      color: #484f58;
+    }
+
+    .footer {
+      font-size: 0.68rem;
+      color: #30363d;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📈 Price Dashboard</h1>
+
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="badge badge-crypto">Crypto</span>
+        <span class="card-name">Raydium · Solana</span>
+      </div>
+      {% if ray.usd is not none %}
+        <div class="price">${{ "%.4f" | format(ray.usd) }}</div>
+      {% else %}
+        <div class="price error">Unavailable</div>
+      {% endif %}
+      <div class="timestamp">RAY · {{ ray.timestamp }}{% if ray.error %} · {{ ray.error }}{% endif %}</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="badge badge-stock">Stock</span>
+        <span class="card-name">PepsiCo · NASDAQ</span>
+      </div>
+      {% if pep.usd is not none %}
+        <div class="price">${{ "%.2f" | format(pep.usd) }}</div>
+      {% else %}
+        <div class="price error">Unavailable</div>
+      {% endif %}
+      <div class="timestamp">PEP · {{ pep.timestamp }}{% if pep.error %} · {{ pep.error }}{% endif %}</div>
+    </div>
+
+  </div>
+
+  <p class="footer">Auto-refreshes every 60 seconds</p>
+
+</body>
+</html>
