@@ -20,6 +20,7 @@ async def lifespan(app: FastAPI):
         application = build_application(token)
         await application.initialize()
         await application.start()
+        await application.updater.start_polling()
 
         scheduler = build_scheduler(
             lambda: send_daily_price(application.bot, chat_id)
@@ -38,6 +39,7 @@ async def lifespan(app: FastAPI):
     if app.state.bot_app:
         if app.state.scheduler:
             app.state.scheduler.shutdown(wait=False)
+        await app.state.bot_app.updater.stop()
         await app.state.bot_app.stop()
         await app.state.bot_app.shutdown()
 
