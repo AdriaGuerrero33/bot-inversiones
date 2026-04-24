@@ -13,26 +13,33 @@ from scheduler import build_scheduler
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    token = os.environ["TELEGRAM_BOT_TOKEN"]
-    chat_id = os.environ["TELEGRAM_CHAT_ID"]
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
 
-    application = build_application(token)
-    await application.initialize()
-    await application.start()
+    if token and chat_id:
+        application = build_application(token)
+        await application.initialize()
+        await application.start()
 
-    scheduler = build_scheduler(
-        lambda: send_daily_price(application.bot, chat_id)
-    )
-    scheduler.start()
+        scheduler = build_scheduler(
+            lambda: send_daily_price(application.bot, chat_id)
+        )
+        scheduler.start()
 
-    app.state.bot_app = application
-    app.state.scheduler = scheduler
+        app.state.bot_app = application
+        app.state.scheduler = scheduler
+    else:
+        print("WARNING: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set — bot disabled")
+        app.state.bot_app = None
+        app.state.scheduler = None
 
     yield
 
-    scheduler.shutdown(wait=False)
-    await application.stop()
-    await application.shutdown()
+    if app.state.bot_app:
+        if app.state.scheduler:
+            app.state.scheduler.shutdown(wait=False)
+        await app.state.bot_app.stop()
+        await app.state.bot_app.shutdown()
 
 
 app = FastAPI(lifespan=lifespan)
